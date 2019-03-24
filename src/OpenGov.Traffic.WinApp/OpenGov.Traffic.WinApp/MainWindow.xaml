@@ -8,7 +8,7 @@
         xmlns:local="clr-namespace:OpenGov.Traffic.WinApp"
         mc:Ignorable="d"
         BorderBrush="{DynamicResource AccentColorBrush}"
-        Title="MainWindow" Height="525" Width="790">
+        Title="Aktuelle Straßenverkehrslage" Height="525" Width="790">
     <Window.Resources>
         <local:MapViewModel x:Key="MapViewModel" />
     </Window.Resources>
