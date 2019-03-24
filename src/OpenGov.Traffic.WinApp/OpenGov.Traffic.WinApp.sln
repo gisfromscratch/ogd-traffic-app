@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2026
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenGov.Traffic.WinApp", "OpenGov.Traffic.WinApp\OpenGov.Traffic.WinApp.csproj", "{2CEA54F9-AB78-412C-BC2D-45BB97D9FECC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2CEA54F9-AB78-412C-BC2D-45BB97D9FECC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CEA54F9-AB78-412C-BC2D-45BB97D9FECC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CEA54F9-AB78-412C-BC2D-45BB97D9FECC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CEA54F9-AB78-412C-BC2D-45BB97D9FECC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {18589D05-1490-48E3-AE7F-FBDA022A3E3A}
+	EndGlobalSection
+EndGlobal
