@@ -5,6 +5,10 @@ VisualStudioVersion = 15.0.28010.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenGov.Traffic.WinApp", "OpenGov.Traffic.WinApp\OpenGov.Traffic.WinApp.csproj", "{2CEA54F9-AB78-412C-BC2D-45BB97D9FECC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenGov.Traffic.Testing", "OpenGov.Traffic.Testing\OpenGov.Traffic.Testing.csproj", "{E6FDE8C8-9918-4187-AC2C-8377E26B383F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenGov.Traffic.Services", "OpenGov.Traffic.Services\OpenGov.Traffic.Services.csproj", "{2928DE6D-DE2E-4EDC-BCC4-812D58A103F0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{2CEA54F9-AB78-412C-BC2D-45BB97D9FECC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2CEA54F9-AB78-412C-BC2D-45BB97D9FECC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2CEA54F9-AB78-412C-BC2D-45BB97D9FECC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6FDE8C8-9918-4187-AC2C-8377E26B383F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6FDE8C8-9918-4187-AC2C-8377E26B383F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6FDE8C8-9918-4187-AC2C-8377E26B383F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6FDE8C8-9918-4187-AC2C-8377E26B383F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2928DE6D-DE2E-4EDC-BCC4-812D58A103F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2928DE6D-DE2E-4EDC-BCC4-812D58A103F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2928DE6D-DE2E-4EDC-BCC4-812D58A103F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2928DE6D-DE2E-4EDC-BCC4-812D58A103F0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
