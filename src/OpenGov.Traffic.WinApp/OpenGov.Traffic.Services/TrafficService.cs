@@ -34,6 +34,13 @@ namespace OpenGov.Traffic.Services
         private readonly HttpClient _httpClient;
         private bool _disposedValue;
 
+        // Registriert weitere Codepages z.B. für ISO-8859-15.
+        static TrafficService()
+        {
+            var instance = CodePagesEncodingProvider.Instance;
+            Encoding.RegisterProvider(instance);
+        }
+
         /// <summary>
         /// Erzeugt eine neue Instanz.
         /// </summary>
