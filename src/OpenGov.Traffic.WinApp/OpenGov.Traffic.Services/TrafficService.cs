@@ -58,10 +58,10 @@ namespace OpenGov.Traffic.Services
         /// <param name="url">der Endpunkt</param>
         /// <exception cref="HttpRequestException"></exception>
         /// <returns><see cref="FeatureCollection{TGeometry}"/></returns>
-        public async Task<FeatureCollection<GeoJsonLineString>> Query(string url)
+        public async Task<FeatureCollection<GeoJsonPolygon>> Query(string url)
         {
             var geoJson = await _httpClient.GetStringAsync(url);
-            return JsonConvert.DeserializeObject<FeatureCollection<GeoJsonLineString>>(geoJson);
+            return JsonConvert.DeserializeObject<FeatureCollection<GeoJsonPolygon>>(geoJson);
         }
 
         protected virtual void Dispose(bool disposing)
