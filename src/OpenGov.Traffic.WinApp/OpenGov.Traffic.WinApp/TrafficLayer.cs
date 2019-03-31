@@ -78,9 +78,11 @@ namespace OpenGov.Traffic.WinApp
             var roadPolyline = CreatePolyline(roadFeature.Geometry.Coordinates, originalSpatialReference);
             if (!originalSpatialReference.IsEqual(targetSpatialReference))
             {
+                // In den Raumbezug der Karte projezieren
                 roadPolyline = (Esri.ArcGISRuntime.Geometry.Polyline) GeometryEngine.Project(roadPolyline, targetSpatialReference);
             }
-            var roadGraphic = new Graphic(roadPolyline);
+
+            var roadGraphic = new Graphic(roadPolyline, roadFeature.Properties);
             return roadGraphic;
         }
 
@@ -117,20 +119,30 @@ namespace OpenGov.Traffic.WinApp
         {
             var overlay = new GraphicsOverlay();
             overlay.Renderer = CreateRenderer();
+            overlay.Opacity = 0.55;
             return overlay;
         }
 
         private static Renderer CreateRenderer()
         {
-            var renderer = new UniqueValueRenderer();
-            renderer.DefaultSymbol = CreateDefaultSymbol();
+            var renderer = new ClassBreaksRenderer();
+            var redSymbol = CreateLineSymbol(Color.Red);
+            renderer.DefaultSymbol = redSymbol;
+            renderer.FieldName = @"geschwindigkeit";
+            var lowestBreak = new ClassBreak(@"Unterste Geschwindigkeit", @"weniger als 20 km/h", 0, 20 - double.Epsilon, redSymbol);
+            renderer.ClassBreaks.Add(lowestBreak);
+            var yellowSymbol = CreateLineSymbol(Color.Yellow);
+            var mediumBreak = new ClassBreak(@"Mittlere Geschwindigkeit", @"weniger als 50 km/h", lowestBreak.MaxValue + double.Epsilon, 50 - double.Epsilon, yellowSymbol);
+            renderer.ClassBreaks.Add(mediumBreak);
+            var greenSymbol = CreateLineSymbol(Color.Green);
+            var highestBreak = new ClassBreak(@"Hohe Geschwindigkeit", @"mindestens 50 km/h", lowestBreak.MaxValue + double.Epsilon, double.MaxValue, greenSymbol);
+            renderer.ClassBreaks.Add(highestBreak);
             return renderer;
         }
 
-        private static Symbol CreateDefaultSymbol()
+        private static Symbol CreateLineSymbol(Color lineColor)
         {
-            var symbol = new SimpleLineSymbol(SimpleLineSymbolStyle.Solid, Color.Green, 5);
-            return symbol;
+            return new SimpleLineSymbol(SimpleLineSymbolStyle.Solid, lineColor, 3);
         }
     }
 }
