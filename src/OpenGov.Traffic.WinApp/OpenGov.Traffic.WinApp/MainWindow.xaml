@@ -13,6 +13,6 @@
         <local:MapViewModel x:Key="MapViewModel" />
     </Window.Resources>
     <Grid>
-        <esri:MapView Map="{Binding Map, Source={StaticResource MapViewModel}}" />
+        <esri:MapView Map="{Binding Map, Source={StaticResource MapViewModel}}" Overlays="{Binding Overlay, Source={StaticResource MapViewModel}}" />
     </Grid>
 </controls:MetroWindow>

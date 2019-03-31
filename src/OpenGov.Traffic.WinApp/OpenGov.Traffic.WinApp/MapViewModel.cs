@@ -15,9 +15,11 @@
  */
 
 using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Esri.ArcGISRuntime.Mapping;
+using Esri.ArcGISRuntime.UI;
 
 namespace OpenGov.Traffic.WinApp
 {
@@ -27,6 +29,7 @@ namespace OpenGov.Traffic.WinApp
     public class MapViewModel : INotifyPropertyChanged
     {
         private Map _map;
+        private TrafficLayer _trafficLayer;
 
         /// <summary>
         /// Erzeugt eine neue Instanz und setzt die Hintergrundkarte.
@@ -35,6 +38,7 @@ namespace OpenGov.Traffic.WinApp
         {
             _map = new Map(Basemap.CreateStreets());
             _map.Loaded += MapLoaded;
+            Overlays = new ObservableCollection<GraphicsOverlay>();
         }
 
         /// <summary>
@@ -46,9 +50,20 @@ namespace OpenGov.Traffic.WinApp
             set { _map = value; OnPropertyChanged(); }
         }
 
+        /// <summary>
+        /// Die verschiedenen Grafiklayer dieser Anwendung.
+        /// </summary>
+        public ObservableCollection<GraphicsOverlay> Overlays
+        {
+            get; private set;
+        }
+
         private void MapLoaded(object sender, EventArgs evt)
         {
-            
+            _trafficLayer = new TrafficLayer(@"http://stadtplan.bonn.de/geojson?Thema=19584");
+            var trafficOverlay = _trafficLayer.Overlay;
+            Overlays.Add(trafficOverlay);
+            _trafficLayer.UpdateAsync();
         }
 
         /// <summary>
