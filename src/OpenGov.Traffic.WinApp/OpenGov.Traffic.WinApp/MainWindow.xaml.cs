@@ -24,6 +24,9 @@ namespace OpenGov.Traffic.WinApp
         public MainWindow()
         {
             InitializeComponent();
+
+            //var mapViewModel = (MapViewModel) Resources[@"MapViewModel"];
+            //mapViewModel.Overlays = MapView.Overlays;
         }
 
         // Map initialization logic is contained in MapViewModel.cs

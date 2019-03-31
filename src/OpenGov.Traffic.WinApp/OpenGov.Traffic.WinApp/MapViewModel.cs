@@ -30,6 +30,7 @@ namespace OpenGov.Traffic.WinApp
     {
         private Map _map;
         private TrafficLayer _trafficLayer;
+        private GraphicsOverlayCollection _overlays;
 
         /// <summary>
         /// Erzeugt eine neue Instanz und setzt die Hintergrundkarte.
@@ -38,7 +39,7 @@ namespace OpenGov.Traffic.WinApp
         {
             _map = new Map(Basemap.CreateStreets());
             _map.Loaded += MapLoaded;
-            Overlays = new ObservableCollection<GraphicsOverlay>();
+            Overlays = new GraphicsOverlayCollection();
         }
 
         /// <summary>
@@ -53,14 +54,15 @@ namespace OpenGov.Traffic.WinApp
         /// <summary>
         /// Die verschiedenen Grafiklayer dieser Anwendung.
         /// </summary>
-        public ObservableCollection<GraphicsOverlay> Overlays
+        public GraphicsOverlayCollection Overlays
         {
-            get; private set;
+            get => _overlays;
+            set { _overlays = value; OnPropertyChanged(); }
         }
 
         private void MapLoaded(object sender, EventArgs evt)
         {
-            _trafficLayer = new TrafficLayer(@"http://stadtplan.bonn.de/geojson?Thema=19584");
+            _trafficLayer = new TrafficLayer(@"http://stadtplan.bonn.de/geojson?Thema=19584", Map.SpatialReference);
             var trafficOverlay = _trafficLayer.Overlay;
             Overlays.Add(trafficOverlay);
             _trafficLayer.UpdateAsync();
