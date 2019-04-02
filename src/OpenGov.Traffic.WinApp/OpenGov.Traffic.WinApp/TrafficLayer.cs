@@ -20,7 +20,9 @@ using Esri.ArcGISRuntime.Geometry;
 using Esri.ArcGISRuntime.Symbology;
 using Esri.ArcGISRuntime.UI;
 using OpenGov.Traffic.Services;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Threading.Tasks;
 
 namespace OpenGov.Traffic.WinApp
 {
@@ -45,6 +47,7 @@ namespace OpenGov.Traffic.WinApp
             _url = url;
             _mapSpatialReference = mapSpatialReference;
             Overlay = CreateOverlay();
+            AreaOfInterest = new EnvelopeBuilder(mapSpatialReference).ToGeometry();
         }
 
         /// <summary>
@@ -53,12 +56,18 @@ namespace OpenGov.Traffic.WinApp
         public GraphicsOverlay Overlay { get; private set; }
 
         /// <summary>
-        /// Aktualisiert diesen Layer.
+        /// Die Ausdehnung dieses Layer.
         /// </summary>
-        internal async void UpdateAsync()
+        public Envelope AreaOfInterest { get; private set; }
+
+        /// <summary>
+        /// Aktualisiert diesen Layer und den <see cref="AreaOfInterest"/>.
+        /// </summary>
+        internal async Task UpdateAsync()
         {
             Overlay.Graphics.Clear();
 
+            var geometries = new List<Geometry>();
             var featureCollection = await _service.Query(_url);
             foreach (var feature in featureCollection.Features)
             {
@@ -68,9 +77,14 @@ namespace OpenGov.Traffic.WinApp
                     case @"MultiLineString":
                         var roadGraphic = CreateRoadGraphic(feature, SpatialReferences.Wgs84, _mapSpatialReference);
                         Overlay.Graphics.Add(roadGraphic);
+                        geometries.Add(roadGraphic.Geometry);
                         break;
                 }
             }
+
+            // Ausdehnung neu berechnen
+            var union = GeometryEngine.Union(geometries);
+            AreaOfInterest = union.Extent;
         }
 
         private static Graphic CreateRoadGraphic(GeoJsonFeature<GeoJsonPolygon> roadFeature, Esri.ArcGISRuntime.Geometry.SpatialReference originalSpatialReference, Esri.ArcGISRuntime.Geometry.SpatialReference targetSpatialReference)

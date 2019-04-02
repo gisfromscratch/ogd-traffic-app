@@ -1,18 +1,20 @@
-﻿using Esri.ArcGISRuntime.UI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System;
+using System.ComponentModel;
+/*
+ * Copyright 2019 Jan Tschada
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 namespace OpenGov.Traffic.WinApp
 {
@@ -25,10 +27,25 @@ namespace OpenGov.Traffic.WinApp
         {
             InitializeComponent();
 
-            //var mapViewModel = (MapViewModel) Resources[@"MapViewModel"];
-            //mapViewModel.Overlays = MapView.Overlays;
+            // Nicht schön aber wenigstens verwaltet das ViewModel die Ausdehnung
+            var mapViewModel = (MapViewModel) Resources[@"MapViewModel"];
+            mapViewModel.AreaOfInterestChanged += AreaOfInterestChanged;
         }
 
-        // Map initialization logic is contained in MapViewModel.cs
+        private void AreaOfInterestChanged(object sender, EventArgs e)
+        {
+            var mapViewModel = sender as MapViewModel;
+            if (null == mapViewModel)
+            {
+                return;
+            }
+
+            if (mapViewModel.AreaOfInterest.IsEmpty)
+            {
+                return;
+            }
+
+            MapView.SetViewpointGeometryAsync(mapViewModel.AreaOfInterest);
+        }
     }
 }

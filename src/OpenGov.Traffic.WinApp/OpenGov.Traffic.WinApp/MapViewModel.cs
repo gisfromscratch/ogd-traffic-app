@@ -18,6 +18,8 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows;
+using Esri.ArcGISRuntime.Geometry;
 using Esri.ArcGISRuntime.Mapping;
 using Esri.ArcGISRuntime.UI;
 
@@ -31,6 +33,7 @@ namespace OpenGov.Traffic.WinApp
         private Map _map;
         private TrafficLayer _trafficLayer;
         private GraphicsOverlayCollection _overlays;
+        private Envelope _areaOfInterest;
 
         /// <summary>
         /// Erzeugt eine neue Instanz und setzt die Hintergrundkarte.
@@ -39,7 +42,8 @@ namespace OpenGov.Traffic.WinApp
         {
             _map = new Map(Basemap.CreateStreets());
             _map.Loaded += MapLoaded;
-            Overlays = new GraphicsOverlayCollection();
+            _overlays = new GraphicsOverlayCollection();
+            _areaOfInterest = new EnvelopeBuilder(SpatialReferences.Wgs84).ToGeometry();
         }
 
         /// <summary>
@@ -60,12 +64,27 @@ namespace OpenGov.Traffic.WinApp
             set { _overlays = value; OnPropertyChanged(); }
         }
 
-        private void MapLoaded(object sender, EventArgs evt)
+        /// <summary>
+        /// Die Ausdehnung der aktuellen Straßenverkehrslage.
+        /// </summary>
+        public Envelope AreaOfInterest
+        {
+            get => _areaOfInterest;
+            set { _areaOfInterest = value; OnPropertyChanged(); }
+        }
+
+        private async void MapLoaded(object sender, EventArgs evt)
         {
             _trafficLayer = new TrafficLayer(@"http://stadtplan.bonn.de/geojson?Thema=19584", Map.SpatialReference);
             var trafficOverlay = _trafficLayer.Overlay;
             Overlays.Add(trafficOverlay);
-            _trafficLayer.UpdateAsync();
+            await _trafficLayer.UpdateAsync();
+
+            AreaOfInterest = _trafficLayer.AreaOfInterest;
+
+            // Ereignis im UI-Thread auslösen
+            // Old school dispatching :-)
+            Application.Current.Dispatcher.Invoke(new Action(() => { AreaOfInterestChanged?.Invoke(this, EventArgs.Empty); }));
         }
 
         /// <summary>
@@ -79,6 +98,14 @@ namespace OpenGov.Traffic.WinApp
                 propertyChangedHandler(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        /// <summary>
+        /// Wird ausgelöst, wenn eine Eigenschaft diese Model verändert wird.
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// Wird ausgelöst, wenn die Ausdehnung der Layer neu berechnet wurde.
+        /// </summary>
+        public event EventHandler AreaOfInterestChanged;
     }
 }
