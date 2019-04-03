@@ -36,6 +36,7 @@ namespace OpenGov.Traffic.WinApp
         private GraphicsOverlayCollection _overlays;
         private Envelope _areaOfInterest;
         private Timer _updateTimer;
+        private string _lastUpdateInfo;
 
         /// <summary>
         /// Erzeugt eine neue Instanz und setzt die Hintergrundkarte.
@@ -77,12 +78,22 @@ namespace OpenGov.Traffic.WinApp
             set { _areaOfInterest = value; OnPropertyChanged(); }
         }
 
+        /// <summary>
+        /// Textuelle Beschreibung der letzten Aktualisierung.
+        /// </summary>
+        public string LastUpdateInfo
+        {
+            get => _lastUpdateInfo;
+            set { _lastUpdateInfo = value; OnPropertyChanged(); }
+        }
+
         private async void MapLoaded(object sender, EventArgs evt)
         {
             _trafficLayer = new TrafficLayer(@"http://stadtplan.bonn.de/geojson?Thema=19584", Map.SpatialReference);
             var trafficOverlay = _trafficLayer.Overlay;
             Overlays.Add(trafficOverlay);
             await _trafficLayer.UpdateAsync();
+            UpdateInfo();
 
             AreaOfInterest = _trafficLayer.AreaOfInterest;
 
@@ -102,6 +113,12 @@ namespace OpenGov.Traffic.WinApp
             }
 
             await _trafficLayer.UpdateAsync();
+            UpdateInfo();
+        }
+
+        private void UpdateInfo()
+        {
+            LastUpdateInfo = $"Zeitpunkt: {DateTime.Now.ToShortTimeString()} Uhr";
         }
 
         /// <summary>

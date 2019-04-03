@@ -11,8 +11,24 @@
         Title="Aktuelle Straßenverkehrslage" Height="525" Width="790">
     <Window.Resources>
         <local:MapViewModel x:Key="MapViewModel" />
+        <SolidColorBrush x:Key="GreenSymbolBrush" Color="Green" Opacity="0.75" />
+        <SolidColorBrush x:Key="YellowSymbolBrush" Color="Gold" Opacity="0.75" />
+        <SolidColorBrush x:Key="RedSymbolBrush" Color="Red" Opacity="0.75" />
     </Window.Resources>
     <Grid>
-        <esri:MapView x:Name="MapView" Map="{Binding Map, Source={StaticResource MapViewModel}}" GraphicsOverlays="{Binding Overlays, Source={StaticResource MapViewModel}}" />
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal">
+            <controls:Tile Title="{Binding LastUpdateInfo, Source={StaticResource MapViewModel}}" Height="Auto"></controls:Tile>
+            <controls:Tile Title="mindestens 50 km/h" Height="Auto" Width="Auto" Foreground="Black" Background="{StaticResource GreenSymbolBrush}"></controls:Tile>
+            <controls:Tile Title="weniger als 50 km/h" Height="Auto" Width="Auto" Foreground="Black" Background="{StaticResource YellowSymbolBrush}"></controls:Tile>
+            <controls:Tile Title="weniger als 20 km/h" Height="Auto" Width="Auto" Foreground="Black" Background="{StaticResource RedSymbolBrush}"></controls:Tile>
+        </StackPanel>
+        <esri:MapView Grid.Row="1" x:Name="MapView" Map="{Binding Map, Source={StaticResource MapViewModel}}" GraphicsOverlays="{Binding Overlays, Source={StaticResource MapViewModel}}" />
     </Grid>
 </controls:MetroWindow>
