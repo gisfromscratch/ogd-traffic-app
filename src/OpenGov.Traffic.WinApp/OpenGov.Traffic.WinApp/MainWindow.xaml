@@ -24,7 +24,7 @@
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal">
-            <controls:Tile Title="{Binding LastUpdateInfo, Source={StaticResource MapViewModel}}" Height="Auto"></controls:Tile>
+            <controls:Tile Title="{Binding LastUpdateInfo, Source={StaticResource MapViewModel}}" Height="Auto" Width="Auto"></controls:Tile>
             <controls:Tile Title="mindestens 50 km/h" Height="Auto" Width="Auto" Foreground="Black" Background="{StaticResource GreenSymbolBrush}"></controls:Tile>
             <controls:Tile Title="weniger als 50 km/h" Height="Auto" Width="Auto" Foreground="Black" Background="{StaticResource YellowSymbolBrush}"></controls:Tile>
             <controls:Tile Title="weniger als 20 km/h" Height="Auto" Width="Auto" Foreground="Black" Background="{StaticResource RedSymbolBrush}"></controls:Tile>
