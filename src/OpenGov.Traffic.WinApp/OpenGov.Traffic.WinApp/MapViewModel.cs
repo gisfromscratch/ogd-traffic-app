@@ -18,6 +18,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Timers;
 using System.Windows;
 using Esri.ArcGISRuntime.Geometry;
 using Esri.ArcGISRuntime.Mapping;
@@ -34,6 +35,7 @@ namespace OpenGov.Traffic.WinApp
         private TrafficLayer _trafficLayer;
         private GraphicsOverlayCollection _overlays;
         private Envelope _areaOfInterest;
+        private Timer _updateTimer;
 
         /// <summary>
         /// Erzeugt eine neue Instanz und setzt die Hintergrundkarte.
@@ -44,6 +46,8 @@ namespace OpenGov.Traffic.WinApp
             _map.Loaded += MapLoaded;
             _overlays = new GraphicsOverlayCollection();
             _areaOfInterest = new EnvelopeBuilder(SpatialReferences.Wgs84).ToGeometry();
+            _updateTimer = new Timer(5 * 60 * 1000);
+            _updateTimer.Elapsed += UpdateTimerElapsed;
         }
 
         /// <summary>
@@ -85,6 +89,19 @@ namespace OpenGov.Traffic.WinApp
             // Ereignis im UI-Thread auslösen
             // Old school dispatching :-)
             Application.Current.Dispatcher.Invoke(new Action(() => { AreaOfInterestChanged?.Invoke(this, EventArgs.Empty); }));
+
+            // Startet die Aktualisierung des Layer
+            _updateTimer.Start();
+        }
+
+        private async void UpdateTimerElapsed(object sender, ElapsedEventArgs e)
+        {
+            if (null == _trafficLayer)
+            {
+                return;
+            }
+
+            await _trafficLayer.UpdateAsync();
         }
 
         /// <summary>
