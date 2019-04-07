@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 /*
  * Copyright 2019 Jan Tschada
  * 
@@ -16,36 +14,41 @@ using System.Threading.Tasks;
  * limitations under the License.
  */
 
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using OpenGov.Traffic.Services;
+using System;
+using System.Threading.Tasks;
 using Anywhere.ArcGIS;
-using Anywhere.ArcGIS.Operation;
 using Anywhere.ArcGIS.Common;
 using Anywhere.ArcGIS.GeoJson;
+using Anywhere.ArcGIS.Operation;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Extensions.Logging;
+using OpenGov.Traffic.Services;
 
 namespace OpenGov.Traffic.AzureFunctions
 {
     /// <summary>
-    /// Aktualisiert die Straﬂenverkehrslage eines Feature Service Layer.
+    /// Aktualisiert regelm‰ﬂig die Straﬂenverkehrslage eines Feature Service Layer.
     /// </summary>
-    public static class UpdateTrafficLayerUsingHttp
+    public static class UpdateTrafficLayerUsingTimer
     {
         private static readonly TrafficService TrafficServiceInstance;
 
-        static UpdateTrafficLayerUsingHttp()
+        static UpdateTrafficLayerUsingTimer()
         {
             TrafficServiceInstance = new TrafficService();
         }
 
-        [FunctionName("UpdateTrafficLayerUsingHttp")]
-        public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)]
-            HttpRequest request,
-            ILogger log)
+        /// <summary>
+        /// Aktualisiert die Straﬂenverkehrslage eines Feature Service Layer.
+        /// Die Zeitzone kann per WEBSITE_TIME_ZONE in den Anwendungseinstellungen z.B. auf "W.Europe Standard Time" gesetzt werden.
+        /// </summary>
+        /// <param name="timer"></param>
+        /// <param name="log"></param>
+        /// <returns></returns>
+        [FunctionName("UpdateTrafficLayerUsingTimer")]
+        public static async Task Run([TimerTrigger("0 */5 7-19 * * *")]TimerInfo timer, ILogger log)
         {
+
 #if DEBUG
             log.LogInformation("Update traffic layer . . .");
 #endif
@@ -84,17 +87,16 @@ namespace OpenGov.Traffic.AzureFunctions
                     foreach (var roadFeature in roadFeatures)
                     {
                         roadFeature.Geometry.SpatialReference = SpatialReference.WGS84;
-                        var localDateTime = (DateTime) roadFeature.Attributes[@"auswertezeit"];
+                        var localDateTime = (DateTime)roadFeature.Attributes[@"auswertezeit"];
                         roadFeature.Attributes[@"auswertezeit"] = localDateTime.ToUniversalTime();
                         addRoads.Adds.Add(roadFeature);
                     }
                     var addRoadsResult = await gateway.ApplyEdits(addRoads);
                 }
-                return new OkObjectResult(@"Succeeded");
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult(ex.Message);
+                log.LogError(ex.Message);
             }
         }
     }
