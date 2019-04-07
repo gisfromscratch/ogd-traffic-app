@@ -40,13 +40,13 @@ namespace OpenGov.Traffic.AzureFunctions
 
         /// <summary>
         /// Aktualisiert die Straﬂenverkehrslage eines Feature Service Layer.
-        /// Die Zeitzone kann per WEBSITE_TIME_ZONE in den Anwendungseinstellungen z.B. auf "W.Europe Standard Time" gesetzt werden.
+        /// Die Zeitzone kann per WEBSITE_TIME_ZONE in den Anwendungseinstellungen z.B. auf "W. Europe Standard Time" gesetzt werden.
         /// </summary>
         /// <param name="timer"></param>
         /// <param name="log"></param>
         /// <returns></returns>
         [FunctionName("UpdateTrafficLayerUsingTimer")]
-        public static async Task Run([TimerTrigger("0 */5 7-19 * * *")]TimerInfo timer, ILogger log)
+        public static async Task Run([TimerTrigger("0 */15 * * * *")]TimerInfo timer, ILogger log)
         {
 
 #if DEBUG
@@ -87,8 +87,8 @@ namespace OpenGov.Traffic.AzureFunctions
                     foreach (var roadFeature in roadFeatures)
                     {
                         roadFeature.Geometry.SpatialReference = SpatialReference.WGS84;
-                        var localDateTime = (DateTime)roadFeature.Attributes[@"auswertezeit"];
-                        roadFeature.Attributes[@"auswertezeit"] = localDateTime.ToUniversalTime();
+                        var serviceDateTime = (DateTime)roadFeature.Attributes[@"auswertezeit"];
+                        roadFeature.Attributes[@"auswertezeit"] = DateTimeUtils.ConvertServiceTimeToUniversalTime(serviceDateTime);
                         addRoads.Adds.Add(roadFeature);
                     }
                     var addRoadsResult = await gateway.ApplyEdits(addRoads);

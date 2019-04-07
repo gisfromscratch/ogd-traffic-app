@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 /*
  * Copyright 2019 Jan Tschada
  * 
@@ -26,6 +24,8 @@ using Anywhere.ArcGIS;
 using Anywhere.ArcGIS.Operation;
 using Anywhere.ArcGIS.Common;
 using Anywhere.ArcGIS.GeoJson;
+using System;
+using System.Threading.Tasks;
 
 namespace OpenGov.Traffic.AzureFunctions
 {
@@ -84,8 +84,8 @@ namespace OpenGov.Traffic.AzureFunctions
                     foreach (var roadFeature in roadFeatures)
                     {
                         roadFeature.Geometry.SpatialReference = SpatialReference.WGS84;
-                        var localDateTime = (DateTime) roadFeature.Attributes[@"auswertezeit"];
-                        roadFeature.Attributes[@"auswertezeit"] = localDateTime.ToUniversalTime();
+                        var serviceDateTime = (DateTime)roadFeature.Attributes[@"auswertezeit"];
+                        roadFeature.Attributes[@"auswertezeit"] = DateTimeUtils.ConvertServiceTimeToUniversalTime(serviceDateTime);
                         addRoads.Adds.Add(roadFeature);
                     }
                     var addRoadsResult = await gateway.ApplyEdits(addRoads);
