@@ -23,6 +23,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using OpenGov.Traffic.Services;
 
 namespace OpenGov.Traffic.AzureFunctions
 {
@@ -31,6 +32,13 @@ namespace OpenGov.Traffic.AzureFunctions
     /// </summary>
     public static class UpdateTrafficLayerUsingHttp
     {
+        private static readonly TrafficService TrafficServiceInstance;
+
+        static UpdateTrafficLayerUsingHttp()
+        {
+            TrafficServiceInstance = new TrafficService();
+        }
+
         [FunctionName("UpdateTrafficLayerUsingHttp")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
@@ -41,7 +49,15 @@ namespace OpenGov.Traffic.AzureFunctions
             var trafficUrl = Environment.GetEnvironmentVariable(@"traffic.url");
             log.LogInformation($"Connecting to {trafficUrl}");
 
-            return new OkObjectResult(@"Succeeded");
+            try
+            {
+                var featureCollection = await TrafficServiceInstance.Query(trafficUrl);
+                return new OkObjectResult(@"Succeeded");
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult(ex.Message);
+            }
             /*
             string name = req.Query["name"];
 
