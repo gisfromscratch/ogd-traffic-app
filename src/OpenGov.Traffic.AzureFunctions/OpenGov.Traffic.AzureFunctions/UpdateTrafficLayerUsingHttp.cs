@@ -24,6 +24,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using OpenGov.Traffic.Services;
+using Anywhere.ArcGIS;
+using Anywhere.ArcGIS.Operation;
+using Anywhere.ArcGIS.Common;
+using Anywhere.ArcGIS.GeoJson;
+using System.Collections.Generic;
 
 namespace OpenGov.Traffic.AzureFunctions
 {
@@ -40,18 +45,52 @@ namespace OpenGov.Traffic.AzureFunctions
         }
 
         [FunctionName("UpdateTrafficLayerUsingHttp")]
-        public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
+        public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)]
+            HttpRequest request,
             ILogger log)
         {
+#if DEBUG
             log.LogInformation("Update traffic layer . . .");
-
+#endif
             var trafficUrl = Environment.GetEnvironmentVariable(@"traffic.url");
+#if DEBUG
             log.LogInformation($"Connecting to {trafficUrl}");
+#endif
+
+            var portalUrl = Environment.GetEnvironmentVariable(@"portal.url");
+            var appId = Environment.GetEnvironmentVariable(@"portal.appid");
+            var clientId = Environment.GetEnvironmentVariable(@"portal.clientid");
+            var featureService = Environment.GetEnvironmentVariable(@"portal.featureservice");
 
             try
             {
-                var featureCollection = await TrafficServiceInstance.Query(trafficUrl);
+                var roadFeatureCollection = await TrafficServiceInstance.Query(trafficUrl);
+                var wgs84 = new Crs { Type = @"EPSG", Properties = new CrsProperties { Wkid = 4326 } };
+                roadFeatureCollection.CoordinateReferenceSystem = wgs84;
+                var roadFeatures = roadFeatureCollection.ToFeatures();
+
+                using (var gateway = new PortalGateway(portalUrl, tokenProvider: new ArcGISOnlineAppLoginOAuthProvider(appId, clientId)))
+                {
+#if DEBUG
+                    var info = await gateway.Info();
+                    log.LogInformation($"Connecting to {info.FullVersion}");
+#endif
+                    var featureServiceEndpoint = featureService.AsEndpoint();
+                    var queryAllIds = new QueryForIds(featureServiceEndpoint);
+                    queryAllIds.Where = @"1=1";
+                    var queryAllIdsResult = await gateway.QueryForIds(queryAllIds);
+                    var deleteAll = new ApplyEdits<IGeometry>(featureServiceEndpoint);
+                    deleteAll.Deletes.AddRange(queryAllIdsResult.ObjectIds);
+                    var deleteAllResult = await gateway.ApplyEdits(deleteAll);
+
+                    var addRoads = new ApplyEdits<IGeometry>(featureServiceEndpoint);
+                    foreach (var roadFeature in roadFeatures)
+                    {
+                        roadFeature.Geometry.SpatialReference = SpatialReference.WGS84;
+                        addRoads.Adds.Add(roadFeature);
+                    }
+                    var addRoadsResult = await gateway.ApplyEdits(addRoads);
+                }
                 return new OkObjectResult(@"Succeeded");
             }
             catch (Exception ex)
