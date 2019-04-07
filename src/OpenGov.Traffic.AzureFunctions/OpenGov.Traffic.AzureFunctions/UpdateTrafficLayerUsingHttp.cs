@@ -87,6 +87,8 @@ namespace OpenGov.Traffic.AzureFunctions
                     foreach (var roadFeature in roadFeatures)
                     {
                         roadFeature.Geometry.SpatialReference = SpatialReference.WGS84;
+                        var localDateTime = (DateTime) roadFeature.Attributes[@"auswertezeit"];
+                        roadFeature.Attributes[@"auswertezeit"] = localDateTime.ToUniversalTime();
                         addRoads.Adds.Add(roadFeature);
                     }
                     var addRoadsResult = await gateway.ApplyEdits(addRoads);
